@@ -1,0 +1,36 @@
+
+from:http://baike.baidu.com/view/1207212.html?fromTaglist
+　　synchronized 方法控制对类成员变量的访问：每个类实例对应一把锁，每个 synchronized 方法都必须获得调用该方法的类实例的锁方能执行，否则所属线程阻塞，方法一旦执行，就独占该锁，直到从该方法返回时才将锁释放，此后被阻塞的线程方能获得该锁，重新进入可执行状态。这种机制确保了同一时刻对于每一个类实例，其所有声明为 synchronized 的成员函数中至多只有一个处于可执行状态（因为至多只有一个能够获得该类实例对应的锁），从而有效避免了类成员变量的访问冲突（只要所有可能访问类成员变量的方法均被声明为 synchronized）。
+　　在 Java 中，不光是类实例，每一个类也对应一把锁，这样我们也可将类的静态成员函数声明为 synchronized ，以控制其对类的静态成员变量的访问。
+
+Java:synchronized修饰符在静态方法与非静态方法上的区别
+from:http://hi.baidu.com/javalang/blog/item/12f2b1122b2450c7c2fd78a0.html
+2009-08-04 10:26
+
+synchronized在静态方法上表示调用前要获得类的锁，而在非静态方法上表示调用此方法前要获得对象的锁。
+
+public class StaticSynDemo {
+
+	private static String a="test";
+
+	//等同于方法print2
+	public synchronized void print1(String b){ //调用前要取得StaticSynDemo实例化后对象的锁
+		System.out.println(b+a);
+	}
+	public void print2(String b){
+		synchronized (this) {//取得StaticSynDemo实例化后对象的锁
+		System.out.println(b+a);
+		}
+	}
+
+	//等同于方法print4
+	public synchronized static void print3(String b){//调用前要取得StaticSynDemo.class类的锁
+   		System.out.println(b+a);
+	}
+	public static void print4(String b){
+		synchronized (StaticSynDemo.class) { //取得StaticSynDemo.class类的锁
+		System.out.println(b+a);
+   		}
+	}
+
+}

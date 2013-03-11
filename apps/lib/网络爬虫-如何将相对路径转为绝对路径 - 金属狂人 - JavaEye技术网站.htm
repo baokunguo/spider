@@ -1,0 +1,516 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0042)http://johnson-lee.javaeye.com/blog/566320 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站</title>
+    <meta name="description" content="最近在写一个蜘蛛程序，碰到了一个问题，就是如何将页面内超链接的相对路径转为绝对路径，Google了一遍，有很多例子，看了一下，全是不太正确的做法，考虑太片面了，它们的做法大致是这样： 如当前页面是：http://localhost:5995/web/index.html 代码如下：   String url = &quot;http://localhost:5995/web/index.html&amp;q ...">
+    <meta name="keywords" content=" Java综合 网络爬虫-如何将相对路径转为绝对路径">
+    <link rel="shortcut icon" href="http://johnson-lee.javaeye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://johnson-lee.javaeye.com/open_search.xml" title="JavaEye">
+    <link href="http://johnson-lee.javaeye.com/rss" rel="alternate" title="金属狂人" type="application/rss+xml">
+    <link href="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/blue.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/application.js" type="text/javascript"></script>
+      
+  <link href="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/hotkey.js" type="text/javascript"></script>
+  <style>
+    div#main {background-color: transparent; border: 0; padding: 0px; width: 740px;}
+  </style>
+  <link href="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/ui.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/compress.js" type="text/javascript"></script>
+  <style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-xml .cdata { color: #ff1493; }.dp-xml .tag, .dp-xml .tag-name { color: #069; font-weight: bold; }.dp-xml .attribute { color: red; }.dp-xml .attribute-value { color: blue; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style></head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.javaeye.com/" class="homepage">首页</a>
+  <a href="http://www.javaeye.com/news">新闻</a>
+  <a href="http://www.javaeye.com/forums">论坛</a>
+  <a href="http://www.javaeye.com/ask">问答</a>
+  <a href="http://www.javaeye.com/blogs">博客</a>
+  <a href="http://www.javaeye.com/job">招聘</a>
+  <a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a href="http://www.javaeye.com/wiki">专栏</a>
+    <!--<a href="http://www.javaeye.com/articles">文摘</a>//-->
+    <a href="http://www.javaeye.com/groups">圈子</a>
+    <a href="http://www.javaeye.com/search">搜索</a>
+  </div>
+</div>
+      <div id="user_nav">
+      <a href="http://johnson-lee.javaeye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://www.javaeye.com/all" style="color:red">我的应用</a>
+    <a href="http://johnson-lee.javaeye.com/login">登录</a>
+    <a href="http://johnson-lee.javaeye.com/signup" class="nobg">注册</a>
+  </div>
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name"><h1><a href="http://johnson-lee.javaeye.com/">金属狂人</a></h1></div>
+        <div id="blog_preview">
+          
+        </div>
+        <div id="blog_domain">永久域名 <a href="http://johnson-lee.javaeye.com/">http://johnson-lee.javaeye.com</a></div>
+      </div>
+      
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+          
+
+
+<div class="blog_main"> 
+  <div class="blog_nav">
+    <div class="digg" id="d566320"><div><a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="digg(&quot;blogs&quot;, 566320, false);return false;" class="digg">1顶</a><br><a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="digg(&quot;blogs&quot;, 566320, true);return false;" class="bury">0踩</a></div></div>
+    <div class="pre_next">
+      <a href="http://johnson-lee.javaeye.com/blog/566441" class="next" title="剖析HTTP协议GET/POST请求">剖析HTTP协议GET/POST请求</a>
+      |
+      <a href="http://johnson-lee.javaeye.com/blog/530959" class="pre" title="Log4j记录日志到数据库">Log4j记录日志到数据库</a>
+    </div>
+  </div>
+  <div class="blog_title">
+    <div class="date"><span class="year">2010</span><span class="sep_year">-</span><span class="month">01</span><span class="sep_month">-</span><span class="day">09</span></div>
+    <h3><a href="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站.htm">网络爬虫-如何将相对路径转为绝对路径</a></h3>
+                <strong>文章分类:<a href="http://www.javaeye.com/blogs/category/java" style="text-decoration:none;padding-right:10px;">Java编程</a></strong>    
+  </div>
+
+  <div class="blog_content">
+    最近在写一个蜘蛛程序，碰到了一个问题，就是如何将页面内超链接的相对路径转为绝对路径，Google了一遍，有很多例子，看了一下，全是不太正确的做法，考虑太片面了，它们的做法大致是这样：
+<br>如当前页面是：http://localhost:5995/web/index.html
+<br>代码如下：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=String%20url%20%3D%20%22http%3A%2F%2Flocalhost%3A5995%2Fweb%2Findex.html%22%3B%0Aint%20offset%20%3D%20url.lastIndexOf(%22%2F%22)%3B%0AString%20cate%20%3D%20url.substring(0%2C%200ffset%20%2B%201)%3B%0AString%20absPath%20%3D%20cate%20%2B%20%22%E9%A1%B5%E9%9D%A2%E5%86%85%E7%9A%84%E7%9B%B8%E5%AF%B9%E8%B7%AF%E5%BE%84%22%3B%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span>String&nbsp;url&nbsp;=&nbsp;</span><span class="string">"http://localhost:5995/web/index.html"</span><span>;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">int</span><span>&nbsp;offset&nbsp;=&nbsp;url.lastIndexOf(</span><span class="string">"/"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>String&nbsp;cate&nbsp;=&nbsp;url.substring(<span class="number">0</span><span>,&nbsp;0ffset&nbsp;+&nbsp;</span><span class="number">1</span><span>);&nbsp;&nbsp;</span></span></li><li><span>String&nbsp;absPath&nbsp;=&nbsp;cate&nbsp;+&nbsp;<span class="string">"页面内的相对路径"</span><span>;&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="java" style="display: none; ">String url = "http://localhost:5995/web/index.html";
+int offset = url.lastIndexOf("/");
+String cate = url.substring(0, 0ffset + 1);
+String absPath = cate + "页面内的相对路径";
+</pre>
+<br>上面的代码只是在当前请求的路径不是服务器端的目录时适用，有些站点没有屏蔽对目录的访问，就拿上面的url做例子，当前站点的目录结构如下：
+<br>web
+<br> ├─images
+<br> │&nbsp; ├─logo.gif
+<br> │&nbsp; ├─bg.gif
+<br> │&nbsp; ├─banner.swf
+<br> │&nbsp; └─style.css
+<br> ├─scripts
+<br> │&nbsp; ├─swfobject.js
+<br> │&nbsp; ├─common.js
+<br> │&nbsp; └─AjaxRequest.js
+<br> └─upload
+<br>&nbsp;&nbsp;&nbsp; ├─201001090001.rar
+<br>&nbsp;&nbsp;&nbsp; ├─201001090002.rar
+<br>&nbsp;&nbsp;&nbsp; ├─201001090003.rar
+<br>&nbsp;&nbsp;&nbsp; ├─201001090004.rar
+<br>&nbsp;&nbsp;&nbsp; └─201001090005.rar
+<br>假设此站点没有屏蔽对目录的访问，那么在浏览器上请求http://localhost:5995/web/scripts,查看源代码：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=%E7%9B%AE%E5%BD%95%E6%B8%85%E5%8D%95%20--%20%2Fweb%2Fscripts%2F%20%0A%0A--------------------------------------------------------------------------------%0A%0A%5BTo%20Parent%20Directory%5D%0A%0A%20Wednesday%2C%20December%2016%2C%202009%2012%3A48%20PM%20%20%20%20%20%20%20%208%2C670%20swfobject.js%0A%20%20%20%20Monday%2C%20December%2007%2C%202009%2005%3A09%20PM%20%20%20%20%20%20%20%201%2C450%20common.js%0A%20%20Thursday%2C%20December%2031%2C%202009%2001%3A54%20PM%20%20%20%20%20%20%20%203%2C309%20AjaxRequest.js%0A%0A%0A--------------------------------------------------------------------------------%0A%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF%3A%20ASP.NET%20Development%20Server%208.0.0.0%20%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-xml"><li><span><span>目录清单&nbsp;--&nbsp;/web/scripts/&nbsp;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>--------------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>[To&nbsp;Parent&nbsp;Directory]&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;Wednesday,&nbsp;December&nbsp;16,&nbsp;2009&nbsp;12:48&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8,670&nbsp;swfobject.js&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;Monday,&nbsp;December&nbsp;07,&nbsp;2009&nbsp;05:09&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1,450&nbsp;common.js&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;Thursday,&nbsp;December&nbsp;31,&nbsp;2009&nbsp;01:54&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3,309&nbsp;AjaxRequest.js&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>--------------------------------------------------------------------------------&nbsp;&nbsp;</span></li><li><span>版本信息:&nbsp;ASP.NET&nbsp;Development&nbsp;Server&nbsp;8.0.0.0&nbsp;&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="html" style="display: none; ">目录清单 -- /web/scripts/ 
+
+--------------------------------------------------------------------------------
+
+[To Parent Directory]
+
+ Wednesday, December 16, 2009 12:48 PM        8,670 swfobject.js
+    Monday, December 07, 2009 05:09 PM        1,450 common.js
+  Thursday, December 31, 2009 01:54 PM        3,309 AjaxRequest.js
+
+
+--------------------------------------------------------------------------------
+版本信息: ASP.NET Development Server 8.0.0.0 
+</pre>
+<br>查看源代码：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=%3Chtml%3E%0A%20%20%20%20%3Chead%3E%0A%20%20%20%20%3Ctitle%3E%E7%9B%AE%E5%BD%95%E6%B8%85%E5%8D%95%20--%20%2Fweb%2Fscripts%2F%3C%2Ftitle%3E%0A%20%20%20%20%20%20%20%20%3Cstyle%3E%0A%20%20%20%20%20%20%20%20%09body%20%7Bfont-family%3A%22Verdana%22%3Bfont-weight%3Anormal%3Bfont-size%3A%208pt%3Bcolor%3Ablack%3B%7D%20%0A%20%20%20%20%20%20%20%20%09p%20%7Bfont-family%3A%22Verdana%22%3Bfont-weight%3Anormal%3Bcolor%3Ablack%3Bmargin-top%3A%20-5px%7D%0A%20%20%20%20%20%20%20%20%09b%20%7Bfont-family%3A%22Verdana%22%3Bfont-weight%3Abold%3Bcolor%3Ablack%3Bmargin-top%3A%20-5px%7D%0A%20%20%20%20%20%20%20%20%09h1%20%7B%20font-family%3A%22Verdana%22%3Bfont-weight%3Anormal%3Bfont-size%3A18pt%3Bcolor%3Ared%20%7D%0A%20%20%20%20%20%20%20%20%09h2%20%7B%20font-family%3A%22Verdana%22%3Bfont-weight%3Anormal%3Bfont-size%3A14pt%3Bcolor%3Amaroon%20%7D%0A%20%20%20%20%20%20%20%20%09pre%20%7Bfont-family%3A%22Lucida%20Console%22%3Bfont-size%3A%208pt%7D%0A%20%20%20%20%20%20%20%20%09.marker%20%7Bfont-weight%3A%20bold%3B%20color%3A%20black%3Btext-decoration%3A%20none%3B%7D%0A%20%20%20%20%20%20%20%20%09.version%20%7Bcolor%3A%20gray%3B%7D%0A%20%20%20%20%20%20%20%20%09.error%20%7Bmargin-bottom%3A%2010px%3B%7D%0A%20%20%20%20%20%20%20%20%09.expandable%20%7B%20text-decoration%3Aunderline%3B%20font-weight%3Abold%3B%20color%3Anavy%3B%20cursor%3Ahand%3B%20%7D%0A%20%20%20%20%20%20%20%20%3C%2Fstyle%3E%0A%20%20%20%20%3C%2Fhead%3E%0A%20%20%20%20%3Cbody%20bgcolor%3D%22white%22%3E%0A%0A%20%20%20%20%3Ch2%3E%20%3Ci%3E%E7%9B%AE%E5%BD%95%E6%B8%85%E5%8D%95%20--%20%2Fweb%2Fscripts%2F%3C%2Fi%3E%20%3C%2Fh2%3E%3C%2Fspan%3E%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Chr%20width%3D100%25%20size%3D1%20color%3Dsilver%3E%0A%0A%3CPRE%3E%0A%3CA%20href%3D%22%2Fweb%2F%22%3E%5BTo%20Parent%20Directory%5D%3C%2FA%3E%0A%0A%20Wednesday%2C%20December%2016%2C%202009%2012%3A48%20PM%20%20%20%20%20%20%20%208%2C670%20%3CA%20href%3D%22swfobject.js%22%3Eswfobject.js%3C%2FA%3E%0A%20%20%20%20Monday%2C%20December%2007%2C%202009%2005%3A09%20PM%20%20%20%20%20%20%20%201%2C450%20%3CA%20href%3D%22common.js%22%3Ecommon.js%3C%2FA%3E%0A%20%20Thursday%2C%20December%2031%2C%202009%2001%3A54%20PM%20%20%20%20%20%20%20%203%2C309%20%3CA%20href%3D%22AjaxRequest.js%22%3EAjaxRequest.js%3C%2FA%3E%0A%3C%2FPRE%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Chr%20width%3D100%25%20size%3D1%20color%3Dsilver%3E%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cb%3E%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF%3A%3C%2Fb%3E%26nbsp%3BASP.NET%20Development%20Server%208.0.0.0%0A%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2Ffont%3E%0A%0A%20%20%20%20%3C%2Fbody%3E%0A%3C%2Fhtml%3E%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-xml"><li><span><span class="tag">&lt;</span><span class="tag-name">html</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">head</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">title</span><span class="tag">&gt;</span><span>目录清单&nbsp;--&nbsp;/web/scripts/</span><span class="tag">&lt;/</span><span class="tag-name">title</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">style</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;body&nbsp;{font-family:"Verdana";font-weight:normal;font-size:&nbsp;8pt;color:black;}&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;{font-family:"Verdana";font-weight:normal;color:black;margin-top:&nbsp;-5px}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;{font-family:"Verdana";font-weight:bold;color:black;margin-top:&nbsp;-5px}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;h1&nbsp;{&nbsp;font-family:"Verdana";font-weight:normal;font-size:18pt;color:red&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;h2&nbsp;{&nbsp;font-family:"Verdana";font-weight:normal;font-size:14pt;color:maroon&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pre&nbsp;{font-family:"Lucida&nbsp;Console";font-size:&nbsp;8pt}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.marker&nbsp;{font-weight:&nbsp;bold;&nbsp;color:&nbsp;black;text-decoration:&nbsp;none;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.version&nbsp;{color:&nbsp;gray;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.error&nbsp;{margin-bottom:&nbsp;10px;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.expandable&nbsp;{&nbsp;text-decoration:underline;&nbsp;font-weight:bold;&nbsp;color:navy;&nbsp;cursor:hand;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;/</span><span class="tag-name">style</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;/</span><span class="tag-name">head</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">body</span><span>&nbsp;</span><span class="attribute">bgcolor</span><span>=</span><span class="attribute-value">"white"</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">h2</span><span class="tag">&gt;</span><span>&nbsp;</span><span class="tag">&lt;</span><span class="tag-name">i</span><span class="tag">&gt;</span><span>目录清单&nbsp;--&nbsp;/web/scripts/</span><span class="tag">&lt;/</span><span class="tag-name">i</span><span class="tag">&gt;</span><span>&nbsp;</span><span class="tag">&lt;/</span><span class="tag-name">h2</span><span class="tag">&gt;</span><span class="tag">&lt;/</span><span class="tag-name">span</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">hr</span><span>&nbsp;</span><span class="attribute">width</span><span>=</span><span class="attribute-value">100</span><span>%&nbsp;</span><span class="attribute">size</span><span>=</span><span class="attribute-value">1</span><span>&nbsp;</span><span class="attribute">color</span><span>=</span><span class="attribute-value">silver</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="tag">&lt;</span><span class="tag-name">PRE</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="tag">&lt;</span><span class="tag-name">A</span><span>&nbsp;</span><span class="attribute">href</span><span>=</span><span class="attribute-value">"/web/"</span><span class="tag">&gt;</span><span>[To&nbsp;Parent&nbsp;Directory]</span><span class="tag">&lt;/</span><span class="tag-name">A</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;Wednesday,&nbsp;December&nbsp;16,&nbsp;2009&nbsp;12:48&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8,670&nbsp;<span class="tag">&lt;</span><span class="tag-name">A</span><span>&nbsp;</span><span class="attribute">href</span><span>=</span><span class="attribute-value">"swfobject.js"</span><span class="tag">&gt;</span><span>swfobject.js</span><span class="tag">&lt;/</span><span class="tag-name">A</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;Monday,&nbsp;December&nbsp;07,&nbsp;2009&nbsp;05:09&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1,450&nbsp;<span class="tag">&lt;</span><span class="tag-name">A</span><span>&nbsp;</span><span class="attribute">href</span><span>=</span><span class="attribute-value">"common.js"</span><span class="tag">&gt;</span><span>common.js</span><span class="tag">&lt;/</span><span class="tag-name">A</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;Thursday,&nbsp;December&nbsp;31,&nbsp;2009&nbsp;01:54&nbsp;PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3,309&nbsp;<span class="tag">&lt;</span><span class="tag-name">A</span><span>&nbsp;</span><span class="attribute">href</span><span>=</span><span class="attribute-value">"AjaxRequest.js"</span><span class="tag">&gt;</span><span>AjaxRequest.js</span><span class="tag">&lt;/</span><span class="tag-name">A</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="tag">&lt;/</span><span class="tag-name">PRE</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">hr</span><span>&nbsp;</span><span class="attribute">width</span><span>=</span><span class="attribute-value">100</span><span>%&nbsp;</span><span class="attribute">size</span><span>=</span><span class="attribute-value">1</span><span>&nbsp;</span><span class="attribute">color</span><span>=</span><span class="attribute-value">silver</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">b</span><span class="tag">&gt;</span><span>版本信息:</span><span class="tag">&lt;/</span><span class="tag-name">b</span><span class="tag">&gt;</span><span>&amp;nbsp;ASP.NET&nbsp;Development&nbsp;Server&nbsp;8.0.0.0&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;/</span><span class="tag-name">font</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;/</span><span class="tag-name">body</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="tag">&lt;/</span><span class="tag-name">html</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="html" style="display: none; ">&lt;html&gt;
+    &lt;head&gt;
+    &lt;title&gt;目录清单 -- /web/scripts/&lt;/title&gt;
+        &lt;style&gt;
+        	body {font-family:"Verdana";font-weight:normal;font-size: 8pt;color:black;} 
+        	p {font-family:"Verdana";font-weight:normal;color:black;margin-top: -5px}
+        	b {font-family:"Verdana";font-weight:bold;color:black;margin-top: -5px}
+        	h1 { font-family:"Verdana";font-weight:normal;font-size:18pt;color:red }
+        	h2 { font-family:"Verdana";font-weight:normal;font-size:14pt;color:maroon }
+        	pre {font-family:"Lucida Console";font-size: 8pt}
+        	.marker {font-weight: bold; color: black;text-decoration: none;}
+        	.version {color: gray;}
+        	.error {margin-bottom: 10px;}
+        	.expandable { text-decoration:underline; font-weight:bold; color:navy; cursor:hand; }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body bgcolor="white"&gt;
+
+    &lt;h2&gt; &lt;i&gt;目录清单 -- /web/scripts/&lt;/i&gt; &lt;/h2&gt;&lt;/span&gt;
+
+            &lt;hr width=100% size=1 color=silver&gt;
+
+&lt;PRE&gt;
+&lt;A href="/web/"&gt;[To Parent Directory]&lt;/A&gt;
+
+ Wednesday, December 16, 2009 12:48 PM        8,670 &lt;A href="swfobject.js"&gt;swfobject.js&lt;/A&gt;
+    Monday, December 07, 2009 05:09 PM        1,450 &lt;A href="common.js"&gt;common.js&lt;/A&gt;
+  Thursday, December 31, 2009 01:54 PM        3,309 &lt;A href="AjaxRequest.js"&gt;AjaxRequest.js&lt;/A&gt;
+&lt;/PRE&gt;
+            &lt;hr width=100% size=1 color=silver&gt;
+
+              &lt;b&gt;版本信息:&lt;/b&gt;&amp;nbsp;ASP.NET Development Server 8.0.0.0
+
+            &lt;/font&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<br>蜘蛛程序分析到"swfobject.js","common.js","AjaxRequest.js"后，如果按上面截取的做法，肯定就错了。这里就不能截取最后的"/"，应该是"http://localhost:5995/web/scripts" + "/" + "swfobject.js"，但是浏览器为什么能准确分析出来呢？当在页面http://localhost:5995/web/scripts上将鼠标放在超链接<u>swfobject.js</u>上，状态栏显示了它的绝对路径为http://localhost:5995/web/scripts/swfobject.js而不是http://localhost:5995/web/swfobject.js。于是我猜想，肯定在HTTP响应头信息里有相应的信息，于是用下面的代码测试：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=%0Atry%20%7B%0A%09URL%20base%20%3D%20new%20URL(%22http%3A%2F%2Flocalhost%3A5995%2Fweb%2Fscripts%22)%3B%0A%09Map%3CString%2C%20List%3CString%3E%3E%20props%20%3D%20base.openConnection().getHeaderFields()%3B%0A%09for%20(Iterator%3CString%3E%20iterator%20%3D%20props.keySet().iterator()%3B%20iterator.hasNext()%3B)%20%7B%0A%09%09String%20key%20%3D%20(String)%20iterator.next()%3B%0A%09%09System.out.println(key%20%2B%20%22%3D%22%20%2B%20props.get(key))%3B%0A%09%7D%0A%7D%20catch%20(IOException%20e)%20%7B%0A%09e.printStackTrace()%3B%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;URL&nbsp;base&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;URL(</span><span class="string">"http://localhost:5995/web/scripts"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String,&nbsp;List&lt;String&gt;&gt;&nbsp;props&nbsp;=&nbsp;base.openConnection().getHeaderFields();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span><span>&nbsp;(Iterator&lt;String&gt;&nbsp;iterator&nbsp;=&nbsp;props.keySet().iterator();&nbsp;iterator.hasNext();)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;key&nbsp;=&nbsp;(String)&nbsp;iterator.next();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(key&nbsp;+&nbsp;<span class="string">"="</span><span>&nbsp;+&nbsp;props.get(key));&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;<span class="keyword">catch</span><span>&nbsp;(IOException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">
+try {
+	URL base = new URL("http://localhost:5995/web/scripts");
+	Map&lt;String, List&lt;String&gt;&gt; props = base.openConnection().getHeaderFields();
+	for (Iterator&lt;String&gt; iterator = props.keySet().iterator(); iterator.hasNext();) {
+		String key = (String) iterator.next();
+		System.out.println(key + "=" + props.get(key));
+	}
+} catch (IOException e) {
+	e.printStackTrace();
+}
+</pre>
+<br>打印信息如下：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=localhost%3A5995%0Anull%3D%5BHTTP%2F1.1%20200%20OK%5D%0ADate%3D%5BSat%2C%2009%20Jan%202010%2001%3A00%3A25%20GMT%5D%0AContent-type%3D%5Btext%2Fhtml%3B%20charset%3Dutf-8%5D%0AContent-Length%3D%5B1494%5D%0AConnection%3D%5BClose%5D%0AServer%3D%5BASP.NET%20Development%20Server%2F8.0.0.0%5D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span>localhost:</span><span class="number">5995</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">null</span><span>=[HTTP/</span><span class="number">1.1</span><span>&nbsp;</span><span class="number">200</span><span>&nbsp;OK]&nbsp;&nbsp;</span></span></li><li><span>Date=[Sat,&nbsp;<span class="number">09</span><span>&nbsp;Jan&nbsp;</span><span class="number">2010</span><span>&nbsp;</span><span class="number">01</span><span>:</span><span class="number">00</span><span>:</span><span class="number">25</span><span>&nbsp;GMT]&nbsp;&nbsp;</span></span></li><li><span>Content-type=[text/html;&nbsp;charset=utf-<span class="number">8</span><span>]&nbsp;&nbsp;</span></span></li><li><span>Content-Length=[<span class="number">1494</span><span>]&nbsp;&nbsp;</span></span></li><li><span>Connection=[Close]&nbsp;&nbsp;</span></li><li><span>Server=[ASP.NET&nbsp;Development&nbsp;Server/<span class="number">8.0</span><span>.</span><span class="number">0.0</span><span>]&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="java" style="display: none; ">localhost:5995
+null=[HTTP/1.1 200 OK]
+Date=[Sat, 09 Jan 2010 01:00:25 GMT]
+Content-type=[text/html; charset=utf-8]
+Content-Length=[1494]
+Connection=[Close]
+Server=[ASP.NET Development Server/8.0.0.0]
+</pre>
+<br>从打印内容里，根本看不出里面有什么东西可以区别目录和html文件的，后来又想，如果用Socket模拟浏览器请求，或许有意想不到的收获呢！先贴代码：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=public%20static%20void%20main(String%5B%5D%20args)%20%7B%0A%09try%20%7B%0A%09%09Socket%20s%20%3D%20new%20Socket(%22127.0.0.1%22%2C%205995)%3B%0A%09%09OutputStream%20os%20%3D%20s.getOutputStream()%3B%0A%09%09os.write((%22GET%20%2Fweb%2Fscripts%20HTTP%2F1.1%5Cr%5Cn%22%20%2B%0A%09%09%09%09%22Host%3A%20localhost%5Cr%5Cn%22%20%2B%0A%09%09%09%09%22Connection%3A%20keep-alive%5Cr%5Cn%22%20%2B%0A%09%09%09%09%22%5Cr%5Cn%22).getBytes())%3B%0A%09%09os.flush()%3B%0A%09%09InputStream%20is%20%3D%20s.getInputStream()%3B%0A%09%09int%20c%20%3D%20-1%3B%0A%09%09while%20((c%20%3D%20is.read())%20!%3D%20-1)%20%7B%0A%09%09%09System.out.print((char)c)%3B%0A%09%09%7D%0A%09%09os.close()%3B%0A%09%09is.close()%3B%0A%09%7D%20catch%20(UnknownHostException%20e)%20%7B%0A%09%09e.printStackTrace()%3B%0A%09%7D%20catch%20(IOException%20e)%20%7B%0A%09%09e.printStackTrace()%3B%0A%09%7D%0A%09%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;Socket(</span><span class="string">"127.0.0.1"</span><span>,&nbsp;</span><span class="number">5995</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OutputStream&nbsp;os&nbsp;=&nbsp;s.getOutputStream();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;os.write((<span class="string">"GET&nbsp;/web/scripts&nbsp;HTTP/1.1\r\n"</span><span>&nbsp;+&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Host:&nbsp;localhost\r\n"</span><span>&nbsp;+&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Connection:&nbsp;keep-alive\r\n"</span><span>&nbsp;+&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"\r\n"</span><span>).getBytes());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;os.flush();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InputStream&nbsp;is&nbsp;=&nbsp;s.getInputStream();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span><span>&nbsp;c&nbsp;=&nbsp;-</span><span class="number">1</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;((c&nbsp;=&nbsp;is.read())&nbsp;!=&nbsp;-</span><span class="number">1</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.print((<span class="keyword">char</span><span>)c);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;os.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(UnknownHostException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(IOException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">public static void main(String[] args) {
+	try {
+		Socket s = new Socket("127.0.0.1", 5995);
+		OutputStream os = s.getOutputStream();
+		os.write(("GET /web/scripts HTTP/1.1\r\n" +
+				"Host: localhost\r\n" +
+				"Connection: keep-alive\r\n" +
+				"\r\n").getBytes());
+		os.flush();
+		InputStream is = s.getInputStream();
+		int c = -1;
+		while ((c = is.read()) != -1) {
+			System.out.print((char)c);
+		}
+		os.close();
+		is.close();
+	} catch (UnknownHostException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	
+}
+</pre>
+<br>打印信息如下：
+<br><div class="dp-highlighter"><div class="bar"><div class="tools">Html代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=HTTP%2F1.1%20302%20Found%0AServer%3A%20ASP.NET%20Development%20Server%2F8.0.0.0%0ADate%3A%20Sat%2C%2009%20Jan%202010%2001%3A11%3A42%20GMT%0AContent-Length%3A%20135%0ALocation%3A%20%2Fweb%2Fscripts%2F%0AConnection%3A%20Close%0A%0A%3Chtml%3E%3Chead%3E%3Ctitle%3EObject%20moved%3C%2Ftitle%3E%3C%2Fhead%3E%3Cbody%3E%0A%3Ch2%3EObject%20moved%20to%20%3Ca%20href%3D&#39;%2Fwebsite1%2Fscripts%2F&#39;%3Ehere%3C%2Fa%3E.%3C%2Fh2%3E%0A%3C%2Fbody%3E%3C%2Fhtml%3E%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-xml"><li><span><span>HTTP/1.1&nbsp;302&nbsp;Found&nbsp;&nbsp;</span></span></li><li><span>Server:&nbsp;ASP.NET&nbsp;Development&nbsp;Server/8.0.0.0&nbsp;&nbsp;</span></li><li><span>Date:&nbsp;Sat,&nbsp;09&nbsp;Jan&nbsp;2010&nbsp;01:11:42&nbsp;GMT&nbsp;&nbsp;</span></li><li><span>Content-Length:&nbsp;135&nbsp;&nbsp;</span></li><li><span>Location:&nbsp;/web/scripts/&nbsp;&nbsp;</span></li><li><span>Connection:&nbsp;Close&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="tag">&lt;</span><span class="tag-name">html</span><span class="tag">&gt;</span><span class="tag">&lt;</span><span class="tag-name">head</span><span class="tag">&gt;</span><span class="tag">&lt;</span><span class="tag-name">title</span><span class="tag">&gt;</span><span>Object&nbsp;moved</span><span class="tag">&lt;/</span><span class="tag-name">title</span><span class="tag">&gt;</span><span class="tag">&lt;/</span><span class="tag-name">head</span><span class="tag">&gt;</span><span class="tag">&lt;</span><span class="tag-name">body</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="tag">&lt;</span><span class="tag-name">h2</span><span class="tag">&gt;</span><span>Object&nbsp;moved&nbsp;to&nbsp;</span><span class="tag">&lt;</span><span class="tag-name">a</span><span>&nbsp;</span><span class="attribute">href</span><span>=</span><span class="attribute-value">'/website1/scripts/'</span><span class="tag">&gt;</span><span>here</span><span class="tag">&lt;/</span><span class="tag-name">a</span><span class="tag">&gt;</span><span>.</span><span class="tag">&lt;/</span><span class="tag-name">h2</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li><span><span class="tag">&lt;/</span><span class="tag-name">body</span><span class="tag">&gt;</span><span class="tag">&lt;/</span><span class="tag-name">html</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="html" style="display: none; ">HTTP/1.1 302 Found
+Server: ASP.NET Development Server/8.0.0.0
+Date: Sat, 09 Jan 2010 01:11:42 GMT
+Content-Length: 135
+Location: /web/scripts/
+Connection: Close
+
+&lt;html&gt;&lt;head&gt;&lt;title&gt;Object moved&lt;/title&gt;&lt;/head&gt;&lt;body&gt;
+&lt;h2&gt;Object moved to &lt;a href='/website1/scripts/'&gt;here&lt;/a&gt;.&lt;/h2&gt;
+&lt;/body&gt;&lt;/html&gt;
+</pre>
+<br>我想不用我说大家都知道了吧？关键在于浏览器第一次请求http://localhost:5995/web/scripts时，服务器给浏览器一个302的响应，告诉浏览器这个资源被移动到别的地方了，你访问这个路径吧：Location: /web/scripts/，于是浏览器再请求http://localhost:5995/web/scripts/这次后面就多了个"/"，于是浏览器就知道这个页面内的所有相对路径的超链接的绝对路径了。^_^
+<br>现在知道了用URLConnection测试时，它做了二次请求，所以看不到302的响应。
+  </div>
+
+  
+
+  <script type="text/javascript"><!--
+google_ad_client = "pub-1076724771190722";
+/* JE个人博客468x60 */
+google_ad_slot = "5506163105";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/show_ads.js">
+</script><script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/show_ads_impl.js"></script><script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/expansion_embed.js"></script><script src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/test_domain.js"></script><script>google_protectAndRun("ads_core.google_render_ad", google_handleError, google_render_ad);</script><ins style="display:inline-table;border:none;height:60px;margin:0;padding:0;position:relative;visibility:visible;width:468px"><ins id="google_ads_frame1_anchor" style="display:block;border:none;height:60px;margin:0;padding:0;position:relative;visibility:visible;width:468px"><iframe allowtransparency="true" frameborder="0" height="60" hspace="0" id="google_ads_frame1" marginheight="0" marginwidth="0" name="google_ads_frame" scrolling="no" src="http://googleads.g.doubleclick.net/pagead/ads?client=ca-pub-1076724771190722&output=html&h=60&slotname=5506163105&w=468&lmt=1298598710&flash=10.1.103&url=http%3A%2F%2Fjohnson-lee.javaeye.com%2Fblog%2F566320&dt=1298627509560&shv=r20101117&jsv=r20110208&saldr=1&correlator=1298627511786&frm=0&adk=2738616005&ga_vid=151098929.1298627513&ga_sid=1298627513&ga_hid=14540834&ga_fc=0&u_tz=480&u_his=1&u_java=1&u_h=768&u_w=1366&u_ah=720&u_aw=1366&u_cd=32&u_nplug=22&u_nmime=57&dff=arial&dfs=12&biw=1154&bih=655&eid=33895299&ref=http%3A%2F%2Fwww.google.com%2Fsearch%3Fhl%3Dzh-CN%26newwindow%3D1%26biw%3D1366%26bih%3D659%26q%3DURLConnection%2B302%2B%2B%25E8%25B7%25B3%25E8%25BD%25AC%2Burl%26aq%3Df%26aqi%3D%26aql%3D%26oq%3D&fu=0&ifi=1&dtd=3560&xpc=6d3PIcUQha&p=http%3A//johnson-lee.javaeye.com" style="left:0;position:absolute;top:0" vspace="0" width="468"></iframe></ins></ins>
+  
+  <div id="digg_bottom" class="clearfix"><a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="digg(&quot;blogs&quot;, 566320, false);return false;"><div><strong>1</strong> <br>顶</div></a><a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="digg(&quot;blogs&quot;, 566320, true);return false;"><div><strong>0</strong> <br>踩</div></a></div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://johnson-lee.javaeye.com/blog/566441" class="next" title="剖析HTTP协议GET/POST请求">剖析HTTP协议GET/POST请求</a>
+      |
+      <a href="http://johnson-lee.javaeye.com/blog/530959" class="pre" title="Log4j记录日志到数据库">Log4j记录日志到数据库</a>
+    </div>
+  </div>
+
+  <div class="blog_bottom">
+    <ul>
+      <li>09:26</li>
+      <li>浏览 (810)</li>
+            <li><a href="http://johnson-lee.javaeye.com/blog/566320#comments">评论</a> (1)</li>
+      <li>分类: <a href="http://johnson-lee.javaeye.com/category/87590">通信协议</a></li>
+      
+      
+      
+      <li class="last"><a href="http://www.javaeye.com/wiki/topic/566320" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    <div id="bc1388298">
+  <div class="comment_title">
+    1 楼
+    <a href="http://johnson-lee.javaeye.com/" target="_blank">johnson.lee</a>
+    2010-03-03&nbsp;&nbsp;
+    <a href="http://johnson-lee.javaeye.com/blog/566320#" onclick="quote_comment(1388298);return false;">引用</a>
+    
+  </div>
+  <div class="comment_content">其实JDK内置的URLConnection类的getURL()可以获取请求的URL的真实路径，见代码：<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=try%20%7B%0A%09%2F%2F%E8%AF%B7%E6%B1%82%E7%9A%84%E6%98%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E4%B8%80%E4%B8%AA%E7%9B%AE%E5%BD%95%0A%09URL%20url%20%3D%20new%20URL(%22http%3A%2F%2Flocalhost%3A5995%2Fweb%2Fscripts%22)%3B%0A%09URLConnection%20conn%20%3D%20url.openConnection()%3B%0A%09url%20%3D%20conn.getURL()%3B%0A%09System.out.println(url)%3B%0A%7D%20catch%20(IOException%20e)%20%7B%0A%09e.printStackTrace()%3B%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//请求的是服务器的一个目录</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;URL&nbsp;url&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;URL(</span><span class="string">"http://localhost:5995/web/scripts"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;URLConnection&nbsp;conn&nbsp;=&nbsp;url.openConnection();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;url&nbsp;=&nbsp;conn.getURL();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(url);&nbsp;&nbsp;</span></li><li><span>}&nbsp;<span class="keyword">catch</span><span>&nbsp;(IOException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">try {
+	//请求的是服务器的一个目录
+	URL url = new URL("http://localhost:5995/web/scripts");
+	URLConnection conn = url.openConnection();
+	url = conn.getURL();
+	System.out.println(url);
+} catch (IOException e) {
+	e.printStackTrace();
+}
+</pre><br><br>打印结果如下：<br><div class="dp-highlighter"><div class="bar"><div class="tools">Java代码 <embed src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=http%3A%2F%2Flocalhost%3A5995%2Fweb%2Fscripts%2F%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></div></div><ol start="1" class="dp-j"><li><span><span>http:</span><span class="comment">//localhost:5995/web/scripts/</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="java" style="display: none; ">http://localhost:5995/web/scripts/
+</pre><br><br>因为JDK内置的HttpURLConnection自动处理了302的响应，所以在原来的URL后面加了一个"/"，所以当前页面内的相对路径转为绝对路径于是可以通过URLConnection#getURL()返回的路径 + 相对路径即可得到正确的绝对路径了。</div>
+</div>
+
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+          
+      
+        <form action="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站.htm" id="comment_form" method="post" onsubmit="return false;">          
+
+
+  <input type="hidden" id="editor_bbcode_flag" value="true">
+
+
+
+<div id="editor_main"><div id="editor_wrapper" class="clearfix"><div id="bbcode_emotions"><h5>表情图标</h5><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_biggrin.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_smile.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_sad.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_surprised.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_eek.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_confused.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_cool.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_lol.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_mad.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_razz.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_redface.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_cry.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_evil.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_twisted.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_rolleyes.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_wink.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_exclaim.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_question.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_idea.gif"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_arrow.gif"></div><div id="bbcode_controllers"><div id="bbcode_toolbar"><input type="button" value="B" id="button_bold"><input type="button" value="I" id="button_italic"><input type="button" value="U" id="button_underline"><input type="button" value="Quote"><input type="button" value="Code"><input type="button" value="List"><input type="button" value="Img"><input type="button" value="URL"><input type="button" value="Flash"><input type="button" value="Table"><br>字体颜色: <select id="select_color"><option value="black" style="color: black;">标准</option><option value="darkred" style="color: darkred;">深红</option><option value="red" style="color: red;">红色</option><option value="orange" style="color: orange;">橙色</option><option value="brown" style="color: brown;">棕色</option><option value="yellow" style="color: yellow;">黄色</option><option value="green" style="color: green;">绿色</option><option value="olive" style="color: olive;">橄榄</option><option value="cyan" style="color: cyan;">青色</option><option value="blue" style="color: blue;">蓝色</option><option value="darkblue" style="color: darkblue;">深蓝</option><option value="indigo" style="color: indigo;">靛蓝</option><option value="violet" style="color: violet;">紫色</option><option value="gray" style="color: gray;">灰色</option><option value="white" style="color: white;">白色</option><option value="black" style="color: black;">黑色</option></select>&nbsp;字体大小: <select id="select_font"><option value="0">标准</option><option value="xx-small">1 (xx-small)</option><option value="x-small">2 (x-small)</option><option value="small">3 (small)</option><option value="medium">4 (medium)</option><option value="large">5 (large)</option><option value="x-large">6 (x-large)</option><option value="xx-large">7 (xx-large)</option></select>&nbsp;对齐: <select id="select_align"><option value="0">标准</option><option value="left">居左</option><option value="center">居中</option><option value="right">居右</option></select></div><div id="bbcode_tooltip">提示：选择您需要装饰的文字, 按上列按钮即可添加上相应的标签</div><textarea class="validate-richeditor bad-words min-length-5" cols="40" id="editor_body" name="comment[body]" rows="20" style="width: 500px; height: 350px;"></textarea></div></div></div>
+
+
+<script type="text/javascript">
+  var editor = new Control.TextArea.Editor("editor_body", "bbcode", false);
+</script>
+          <p style="text-align:right;padding-right:30px;">您还没有登录，请<a href="http://johnson-lee.javaeye.com/login">登录</a>后发表评论(快捷键 Alt+S / Ctrl+Enter) <input class="submit" id="quick_reply_button" name="commit" type="submit" value="提交"></p>
+        </form>
+        <script type="text/javascript">
+          new HotKey("s",function() {$('quick_reply_button').click();},{altKey: true, ctrlKey: false});
+          new HotKey(new Number(13),function() {$('quick_reply_button').click();},{altKey: false, ctrlKey: true});
+
+          new Validation("comment_form", {immediate: false, onFormValidate: function(result, form){
+    
+            if(confirm('您需要登录以后才能执行这个操作，现在要登录吗？')) window.location.href = '/login';
+    
+        }});
+        </script>
+      
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  fix_image_size($$('div.blog_content img'), 700);
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'Post'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);}
+    });
+  }
+</script>
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+            <div id="blog_owner_logo"><a href="http://johnson-lee.javaeye.com/"><img alt="johnson.lee的博客" class="logo" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/user-logo.gif" title="johnson.lee的博客: 金属狂人"></a></div>
+            <div id="blog_owner_name">johnson.lee</div>
+          </div>
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 4073 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/icon_minigender_1.gif" title="男"></li>
+              <li>来自: 上海</li>
+              <li><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/offline.gif"></li>
+              <li>
+                <a href="http://johnson-lee.javaeye.com/blog/profile" class="profile">详细资料</a>
+                <a href="http://johnson-lee.javaeye.com/blog/guest_book" class="guest_book">留言簿</a>
+              </li>
+              
+            </ul>
+            <h5>搜索本博客</h5>
+            <form action="http://johnson-lee.javaeye.com/blog/search" method="get">              <input class="text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text">
+              <input class="submit" type="submit" value="搜索">
+            </form>          </div>
+          
+            <div id="user_visits" class="clearfix">
+              <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://johnson-lee.javaeye.com/blog/user_visits">&gt;&gt;更多访客</a></span></h5>
+              
+                <div class="user_visit">
+                  <div class="logo"><a href="http://cjnetwork.javaeye.com/" target="_blank"><img alt="cjnetwork的博客" class="logo" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/93b68533-2b61-30e9-8d7a-9e5204328932-thumb.jpg" title="cjnetwork的博客: cjnetwork"></a></div>
+                  <div class="left"><a href="http://cjnetwork.javaeye.com/" target="_blank">cjnetwork</a></div>
+                </div>
+              
+                <div class="user_visit">
+                  <div class="logo"><a href="http://kkliuxiang.javaeye.com/" target="_blank"><img alt="kkliuxiang的博客" class="logo" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/user-logo-thumb.gif" title="kkliuxiang的博客: kkliuxiang"></a></div>
+                  <div class="left"><a href="http://kkliuxiang.javaeye.com/" target="_blank">kkliuxiang</a></div>
+                </div>
+              
+                <div class="user_visit">
+                  <div class="logo"><a href="http://caijie-china.javaeye.com/" target="_blank"><img alt="caijie_china的博客" class="logo" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/user-logo-thumb.gif" title="caijie_china的博客: "></a></div>
+                  <div class="left"><a href="http://caijie-china.javaeye.com/" target="_blank">caijie_china</a></div>
+                </div>
+              
+                <div class="user_visit">
+                  <div class="logo"><a href="http://tangyuwoai.javaeye.com/" target="_blank"><img alt="tangyuwoai的博客" class="logo" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/user-logo-thumb.gif" title="tangyuwoai的博客: "></a></div>
+                  <div class="left"><a href="http://tangyuwoai.javaeye.com/" target="_blank">tangyuwoai</a></div>
+                </div>
+              
+            </div>
+          
+                      <div id="blog_menu">
+              <h5>博客分类</h5>
+              <ul>
+                <li><a href="http://johnson-lee.javaeye.com/">全部博客 (11)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/122957">Embed (2)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/87584">JavaEE (0)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/89623">JavaSE (5)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/87585">Log4j (1)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/87588">Framework (0)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/92269">HTML&amp;CSS (0)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/87590">通信协议 (2)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/87591">JavaScript (0)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/94562">C# (1)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/133404">VBA (1)</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/category/100108">Live (1)</a></li>
+                
+              </ul>
+            </div>
+            
+              <div id="blog_album">
+                <h5>我的相册</h5>
+                <div class="picture_thumb" style="float: none">
+                  <div><span class="thumb_box"><a href="http://johnson-lee.javaeye.com/album"><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/e0d97851-c5cf-3fc8-989d-3eb1cd8e0e80-thumb.png"></a></span></div>
+                  <span>Chrome-Resources_FormData_part2.png<br> <a href="http://johnson-lee.javaeye.com/album">共 4 张</a></span>
+                </div>
+              </div>
+            
+            
+              <div id="guest_books">
+                <h5>我的留言簿 <span style="font-weight:normal;font-size:12px;padding-left:20px;"><a href="http://johnson-lee.javaeye.com/blog/guest_book">&gt;&gt;更多留言</a></span></h5>
+                <ul>
+                  
+                    <li>
+                      望大侠指点啊感激。。。。。。。。。。。<br>
+                      -- by <a href="http://johnson-lee.javaeye.com/blog/guest_book#21151">787770138</a>
+                    </li>
+                  
+                    <li>
+                      我的打鸟的游戏要怎么运行啊。怎么我javac Game.java 出现好多错误啊。 ...<br>
+                      -- by <a href="http://johnson-lee.javaeye.com/blog/guest_book#21150">787770138</a>
+                    </li>
+                  
+                </ul>
+              </div>
+            
+            <div id="blog_others">
+              <h5>其他分类</h5>
+              <ul>
+                <li><a href="http://johnson-lee.javaeye.com/blog/favorite">我的收藏</a> (0)</li>
+                                                <li><a href="http://johnson-lee.javaeye.com/blog/topic">我的论坛主题贴</a> (4)</li>
+                <li><a href="http://johnson-lee.javaeye.com/blog/post">我的所有论坛贴</a> (29)</li>
+                <li><a href="http://johnson-lee.javaeye.com/blog/article">我的精华良好贴</a> (0)</li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/solution">我解决的问题</a> (32) </li>
+                              </ul>
+            </div>
+            
+            <div id="recent_groups">
+              <h5>最近加入圈子</h5>
+              <ul>
+                
+              </ul>
+            </div>
+            
+                          <div id="month_blogs">
+                <h5>存档</h5>
+                <ul>
+                  
+                    <li><a href="http://johnson-lee.javaeye.com/blog/monthblog/2011-01">2011-01</a> (1)</li>
+                  
+                    <li><a href="http://johnson-lee.javaeye.com/blog/monthblog/2010-11">2010-11</a> (1)</li>
+                  
+                    <li><a href="http://johnson-lee.javaeye.com/blog/monthblog/2010-09">2010-09</a> (1)</li>
+                  
+                  <li><a href="http://johnson-lee.javaeye.com/blog/monthblog_more">更多存档...</a></li>
+                </ul>
+              </div>
+                        <div id="comments_top">
+              <h5>评论排行榜</h5>
+              <ul>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/614591" title="我翻译的《Java编程语言代码规范》">我翻译的《Java编程语言代码规范》</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/603996" title="DOM4HTML（W3C标准实现）源代码">DOM4HTML（W3C标准实现）源代码</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/759883" title="从Java到嵌入式（一）——嵌入式入门">从Java到嵌入式（一）——嵌入式入门</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/875093" title="从Java到嵌入式（二）——升级内核，安装libdc1394库">从Java到嵌入式（二）——升级内核，安装li ...</a></li>
+                
+                  <li><a href="http://johnson-lee.javaeye.com/blog/824469" title="批量设置PowerPoint字体及行间距——VBA宏">批量设置PowerPoint字体及行间距——VBA宏</a></li>
+                
+              </ul>
+            </div>
+            <div id="rss">
+              <ul>
+                <li><a href="http://johnson-lee.javaeye.com/rss" target="_blank"><img alt="Rss" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/rss.png"></a></li>
+                <li><a href="http://fusion.google.com/add?feedurl=http://johnson-lee.javaeye.com/rss" target="_blank"><img alt="Rss_google" src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/rss_google.gif"></a></li>
+              </ul>
+            </div>
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：JavaEye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2011 JavaEye.com.   All rights reserved. 上海炯耐计算机软件有限公司 [ 沪ICP备05023328号 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.javaeye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=-1' width='0' height='0' />");
+</script><img src="./网络爬虫-如何将相对路径转为绝对路径 - 金属狂人 - JavaEye技术网站_files/saved_resource" width="0" height="0">
+    
+  
+
+</body></html>
